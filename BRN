@@ -1,0 +1,1002 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/jujuniss39/OGhub/refs/heads/main/library"))()
+
+local Window = Library:Window({
+    Title = "BE A LUCKY BLOCK",
+    SubTitle = "XORN",
+    Footer = "| UPDATED",
+    Image = "rbxassetid://97167558235554",
+    Color = Color3.fromRGB(255, 0, 0),
+    Theme = "9542022979",
+    ThemeTransparency = 0.1,
+    Version = 2
+})
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+
+local function FindRemote(paths)
+    for _, path in ipairs(paths) do
+        local current = ReplicatedStorage
+        local found = true
+        for _, part in ipairs(path) do
+            current = current:FindFirstChild(part)
+            if not current then
+                found = false
+                break
+            end
+        end
+        if found and current then
+            return current
+        end
+    end
+    return nil
+end
+
+local claimGift = FindRemote({
+    {"Packages", "_Index", "sleitnick_knit@1.7.0", "knit", "Services", "PlaytimeRewardService", "RF", "ClaimGift"},
+    {"Packages", "_Index", "sleitnick_knit@1.7.0", "knit", "Services", "PlaytimeRewardService", "ClaimGift"},
+})
+
+local rebirth = FindRemote({
+    {"Packages", "_Index", "sleitnick_knit@1.7.0", "knit", "Services", "RebirthService", "RF", "Rebirth"},
+    {"Packages", "_Index", "sleitnick_knit@1.7.0", "knit", "Services", "RebirthService", "Rebirth"},
+})
+
+local claimPass = FindRemote({
+    {"Packages", "_Index", "sleitnick_knit@1.7.0", "knit", "Services", "SeasonPassService", "RF", "ClaimPassReward"},
+    {"Packages", "_Index", "sleitnick_knit@1.7.0", "knit", "Services", "SeasonPassService", "ClaimPassReward"},
+})
+
+local redeemCode = FindRemote({
+    {"Packages", "_Index", "sleitnick_knit@1.7.0", "knit", "Services", "CodesService", "RF", "RedeemCode"},
+    {"Packages", "_Index", "sleitnick_knit@1.7.0", "knit", "Services", "CodesService", "RedeemCode"},
+})
+
+local sellHeld = FindRemote({
+    {"Packages", "_Index", "sleitnick_knit@1.7.0", "knit", "Services", "InventoryService", "RF", "SellBrainrot"},
+    {"Packages", "_Index", "sleitnick_knit@1.7.0", "knit", "Services", "InventoryService", "SellBrainrot"},
+})
+
+local pickupBrainrot = FindRemote({
+    {"Packages", "_Index", "sleitnick_knit@1.7.0", "knit", "Services", "ContainerService", "RF", "PickupBrainrot"},
+    {"Packages", "_Index", "sleitnick_knit@1.7.0", "knit", "Services", "ContainerService", "PickupBrainrot"},
+})
+
+local buySkin = FindRemote({
+    {"Packages", "_Index", "sleitnick_knit@1.7.0", "knit", "Services", "SkinService", "RF", "BuySkin"},
+    {"Packages", "_Index", "sleitnick_knit@1.7.0", "knit", "Services", "SkinService", "BuySkin"},
+})
+
+local upgradeSpeed = FindRemote({
+    {"Packages", "_Index", "sleitnick_knit@1.7.0", "knit", "Services", "UpgradesService", "RF", "Upgrade"},
+    {"Packages", "_Index", "sleitnick_knit@1.7.0", "knit", "Services", "UpgradesService", "Upgrade"},
+})
+
+local upgradeBrainrot = FindRemote({
+    {"Packages", "_Index", "sleitnick_knit@1.7.0", "knit", "Services", "ContainerService", "RF", "UpgradeBrainrot"},
+    {"Packages", "_Index", "sleitnick_knit@1.7.0", "knit", "Services", "ContainerService", "UpgradeBrainrot"},
+})
+
+local FarmTab = Window:AddTab({Name = "FARM", Icon = "rbxassetid://6031280882"})
+local SellTab = Window:AddTab({Name = "SELL", Icon = "rbxassetid://6031280882"})
+local UpgradeTab = Window:AddTab({Name = "UPGRADE", Icon = "rbxassetid://6031280882"})
+local SpeedTab = Window:AddTab({Name = "SPEED", Icon = "rbxassetid://6031280882"})
+local MiscTab = Window:AddTab({Name = "MISC", Icon = "rbxassetid://6031280882"})
+
+local FarmSection = FarmTab:AddSection("AUTO FARM", true)
+
+local FarmStatus = FarmSection:AddParagraph({
+    Title = "FARM STATUS",
+    Content = "OFF"
+})
+
+local autoFarmRunning = false
+local farmTarget = "base15"
+local farmThread
+
+FarmSection:AddDivider()
+
+FarmSection:AddToggle({
+    Title = "AUTO FARM (base15)",
+    Default = false,
+    Callback = function(state)
+        autoFarmRunning = state
+        
+        if state then
+            FarmStatus:SetContent("ON - Target: " .. farmTarget)
+            
+            farmThread = task.spawn(function()
+                while autoFarmRunning do
+                    local character = Player.Character or Player.CharacterAdded:Wait()
+                    local root = character:WaitForChild("HumanoidRootPart")
+                    local humanoid = character:WaitForChild("Humanoid")
+                    local userId = Player.UserId
+                    local modelsFolder = workspace:FindFirstChild("RunningModels")
+                    local collectZones = workspace:FindFirstChild("CollectZones")
+                    
+                    if not modelsFolder or not collectZones then
+                        task.wait(1)
+                        continue
+                    end
+                    
+                    local target = collectZones:FindFirstChild(farmTarget)
+                    if not target then
+                        target = collectZones:FindFirstChild("base14")
+                        if not target then
+                            task.wait(1)
+                            continue
+                        end
+                    end
+                    
+                    root.CFrame = CFrame.new(715, 39, -2122)
+                    task.wait(0.3)
+                    
+                    humanoid:MoveTo(Vector3.new(710, 39, -2122))
+                    
+                    local ownedModel = nil
+                    repeat
+                        task.wait(0.3)
+                        if not autoFarmRunning then break end
+                        for _, obj in ipairs(modelsFolder:GetChildren()) do
+                            if obj:IsA("Model") and obj:GetAttribute("OwnerId") == userId then
+                                ownedModel = obj
+                                break
+                            end
+                        end
+                    until ownedModel ~= nil or not autoFarmRunning
+                    
+                    if not autoFarmRunning then break end
+                    
+                    if ownedModel.PrimaryPart then
+                        ownedModel:SetPrimaryPartCFrame(target.CFrame)
+                    else
+                        local part = ownedModel:FindFirstChildWhichIsA("BasePart")
+                        if part then
+                            part.CFrame = target.CFrame
+                        end
+                    end
+                    
+                    task.wait(0.7)
+                    
+                    if ownedModel and ownedModel.Parent == modelsFolder then
+                        if ownedModel.PrimaryPart then
+                            ownedModel:SetPrimaryPartCFrame(target.CFrame * CFrame.new(0, -5, 0))
+                        else
+                            local part = ownedModel:FindFirstChildWhichIsA("BasePart")
+                            if part then
+                                part.CFrame = target.CFrame * CFrame.new(0, -5, 0)
+                            end
+                        end
+                    end
+                    
+                    repeat
+                        task.wait(0.3)
+                        if not autoFarmRunning then break end
+                    until ownedModel == nil or ownedModel.Parent ~= modelsFolder
+                    
+                    if not autoFarmRunning then break end
+                    
+                    local oldCharacter = Player.Character
+                    repeat
+                        task.wait(0.2)
+                        if not autoFarmRunning then break end
+                    until Player.Character ~= oldCharacter and Player.Character ~= nil
+                    
+                    if not autoFarmRunning then break end
+                    
+                    task.wait(0.4)
+                    
+                    local newChar = Player.Character
+                    if newChar then
+                        local newRoot = newChar:FindFirstChild("HumanoidRootPart")
+                        if newRoot then
+                            newRoot.CFrame = CFrame.new(737, 39, -2118)
+                        end
+                    end
+                    
+                    task.wait(2.1)
+                end
+            end)
+        else
+            if farmThread then
+                task.cancel(farmThread)
+                farmThread = nil
+            end
+            FarmStatus:SetContent("OFF")
+        end
+    end
+})
+
+local RebirthSection = FarmTab:AddSection("AUTO REBIRTH", true)
+
+local RebirthStatus = RebirthSection:AddParagraph({
+    Title = "REBIRTH STATUS",
+    Content = "OFF"
+})
+
+local autoRebirthRunning = false
+local rebirthThread
+
+RebirthSection:AddDivider()
+
+RebirthSection:AddToggle({
+    Title = "AUTO REBIRTH",
+    Default = false,
+    Callback = function(state)
+        autoRebirthRunning = state
+        
+        if state then
+            RebirthStatus:SetContent("ON")
+            rebirthThread = task.spawn(function()
+                while autoRebirthRunning do
+                    pcall(function() if rebirth then rebirth:InvokeServer() end end)
+                    task.wait(1)
+                end
+            end)
+        else
+            if rebirthThread then
+                task.cancel(rebirthThread)
+                rebirthThread = nil
+            end
+            RebirthStatus:SetContent("OFF")
+        end
+    end
+})
+
+local QuestSection = FarmTab:AddSection("AUTO QUESTS", true)
+
+local QuestStatus = QuestSection:AddParagraph({
+    Title = "QUEST STATUS",
+    Content = "OFF"
+})
+
+local autoQuestRunning = false
+local questThread
+
+local function runQuests()
+    local playerGui = Player.PlayerGui
+    local success, frame = pcall(function()
+        return playerGui.Windows.Event.Frame.Frame.Windows.Quests.Frame.ScrollingFrame
+    end)
+    
+    if success and frame then
+        local function claim(frameToCheck)
+            if not frameToCheck then return end
+            for _, child in ipairs(frameToCheck:GetChildren()) do
+                local claimed = child:FindFirstChild("Claimed")
+                local claimBtn = child:FindFirstChild("Claim")
+                if claimed and not claimed.Visible and claimBtn then
+                    pcall(function() claimBtn:Activate() end)
+                    task.wait(0.3)
+                end
+            end
+        end
+        
+        local daily = frame:FindFirstChild("DailyQuests")
+        local hourly = frame:FindFirstChild("HourlyQuests")
+        if daily then claim(daily.Frame.Frame.Frame) end
+        if hourly then claim(hourly.Frame.Frame.Frame) end
+    end
+end
+
+QuestSection:AddDivider()
+
+QuestSection:AddToggle({
+    Title = "AUTO COMPLETE QUESTS",
+    Default = false,
+    Callback = function(state)
+        autoQuestRunning = state
+        
+        if state then
+            QuestStatus:SetContent("ON")
+            questThread = task.spawn(function()
+                while autoQuestRunning do
+                    runQuests()
+                    task.wait(5)
+                end
+            end)
+        else
+            if questThread then
+                task.cancel(questThread)
+                questThread = nil
+            end
+            QuestStatus:SetContent("OFF")
+        end
+    end
+})
+
+local TeleportSection = FarmTab:AddSection("TELEPORT", true)
+TeleportSection:AddButton({
+    Title = "TELEPORT TO END",
+    Callback = function()
+        local modelsFolder = workspace:FindFirstChild("RunningModels")
+        local target = workspace:FindFirstChild("CollectZones")
+        if target then 
+            target = target:FindFirstChild("base15") or target:FindFirstChild("base14")
+        end
+        if modelsFolder and target then
+            for _, obj in ipairs(modelsFolder:GetChildren()) do
+                pcall(function()
+                    if obj:IsA("Model") and obj.PrimaryPart then
+                        obj:SetPrimaryPartCFrame(target.CFrame)
+                    end
+                end)
+            end
+        end
+    end
+})
+
+local BossSection = FarmTab:AddSection("BOSS DETECTORS", true)
+local storedParts = {}
+local folder = workspace:FindFirstChild("BossTouchDetectors")
+
+BossSection:AddToggle({
+    Title = "REMOVE BOSS TOUCH DETECTORS",
+    Default = false,
+    Callback = function(state)
+        if folder then
+            if state then
+                storedParts = {}
+                for _, obj in ipairs(folder:GetChildren()) do
+                    if obj.Name ~= "base14" and obj.Name ~= "base15" then
+                        table.insert(storedParts, obj)
+                        obj.Parent = nil
+                    end
+                end
+            else
+                for _, obj in ipairs(storedParts) do
+                    if obj then obj.Parent = folder end
+                end
+                storedParts = {}
+            end
+        end
+    end
+})
+
+local SellSection = SellTab:AddSection("AUTO SELL", true)
+
+local SellStatus = SellSection:AddParagraph({
+    Title = "SELL STATUS",
+    Content = "OFF\nSold: 0"
+})
+
+local autoSellRunning = false
+local soldCount = 0
+local sellThread
+local sellInterval = 5
+local cashThreshold = 0
+local currentFilter = "Mutation"
+
+local FilterSection = SellTab:AddSection("FILTER TYPE", true)
+
+FilterSection:AddButton({
+    Title = "FILTER: MUTATION",
+    Callback = function()
+        currentFilter = "Mutation"
+        Library:Notification({Title = "Filter Changed", Content = "Now filtering by Mutation", Duration = 2})
+    end
+})
+
+FilterSection:AddButton({
+    Title = "FILTER: CASH/s",
+    Callback = function()
+        currentFilter = "Cash/s"
+        Library:Notification({Title = "Filter Changed", Content = "Now filtering by Cash/s", Duration = 2})
+    end
+})
+
+local MutationSection = SellTab:AddSection("MUTATION FILTER", true)
+local selectedMutations = {NORMAL=true, CANDY=true, GOLD=true, DIAMOND=true, VOID=false}
+
+MutationSection:AddToggle({
+    Title = "SELL NORMAL",
+    Default = true,
+    Callback = function(state) selectedMutations.NORMAL = state end
+})
+
+MutationSection:AddToggle({
+    Title = "SELL CANDY",
+    Default = true,
+    Callback = function(state) selectedMutations.CANDY = state end
+})
+
+MutationSection:AddToggle({
+    Title = "SELL GOLD",
+    Default = true,
+    Callback = function(state) selectedMutations.GOLD = state end
+})
+
+MutationSection:AddToggle({
+    Title = "SELL DIAMOND",
+    Default = true,
+    Callback = function(state) selectedMutations.DIAMOND = state end
+})
+
+MutationSection:AddToggle({
+    Title = "SELL VOID",
+    Default = false,
+    Callback = function(state) selectedMutations.VOID = state end
+})
+
+local CashSection = SellTab:AddSection("CASH FILTER", true)
+CashSection:AddSlider({
+    Title = "SELL BELOW CASH/s",
+    Default = 0,
+    Min = 0,
+    Max = 1000000,
+    Callback = function(value) cashThreshold = value end
+})
+
+local IntervalSection = SellTab:AddSection("SETTINGS", true)
+IntervalSection:AddSlider({
+    Title = "SELL INTERVAL (seconds)",
+    Default = 5,
+    Min = 3,
+    Max = 10,
+    Callback = function(value) sellInterval = value end
+})
+
+local Suffixes = {
+    K = 1e3, M = 1e6, B = 1e9,
+    T = 1e12, QA = 1e15, QI = 1e18,
+    SX = 1e21, SP = 1e24, OC = 1e27, NO = 1e30,
+}
+
+local function ParseCashPerSec(str)
+    if not str then return 0 end
+    str = tostring(str)
+    local numPart, suffix = str:match("%+?([%d%.]+)(%a*)%$")
+    local num = tonumber(numPart) or 0
+    if suffix and suffix ~= "" then
+        local mult = Suffixes[suffix:upper()]
+        if mult then num = num * mult end
+    end
+    return num
+end
+
+local function ShouldSell(tool)
+    if currentFilter == "Mutation" then
+        local mutation = tool:GetAttribute("Mutation")
+        if mutation then
+            return selectedMutations[mutation:upper()] == true
+        end
+    elseif currentFilter == "Cash/s" then
+        local cashAttr = tool:GetAttribute("CashPerSec")
+        if cashAttr then
+            local toolValue = ParseCashPerSec(tostring(cashAttr))
+            return toolValue < cashThreshold
+        end
+    end
+    return false
+end
+
+local AutoSellSection = SellTab:AddSection("AUTO SELL CONTROL", true)
+AutoSellSection:AddDivider()
+
+AutoSellSection:AddToggle({
+    Title = "AUTO SELL BRAINROTS",
+    Default = false,
+    Callback = function(state)
+        autoSellRunning = state
+        
+        if state then
+            SellStatus:SetContent("ON\nSold: " .. soldCount)
+            
+            sellThread = task.spawn(function()
+                while autoSellRunning do
+                    if sellHeld then
+                        local sold = 0
+                        for _, tool in ipairs(Player.Backpack:GetChildren()) do
+                            if tool:IsA("Tool") and ShouldSell(tool) then
+                                local entityId = tool:GetAttribute("EntityId")
+                                if entityId then
+                                    pcall(function() sellHeld:InvokeServer(entityId) end)
+                                    sold = sold + 1
+                                    task.wait(0.1)
+                                end
+                            end
+                        end
+                        if Player.Character then
+                            for _, tool in ipairs(Player.Character:GetChildren()) do
+                                if tool:IsA("Tool") and ShouldSell(tool) then
+                                    local entityId = tool:GetAttribute("EntityId")
+                                    if entityId then
+                                        pcall(function() sellHeld:InvokeServer(entityId) end)
+                                        sold = sold + 1
+                                        task.wait(0.1)
+                                    end
+                                end
+                            end
+                        end
+                        if sold > 0 then
+                            soldCount = soldCount + sold
+                            SellStatus:SetContent("ON\nSold: " .. soldCount)
+                        end
+                    end
+                    task.wait(sellInterval)
+                end
+            end)
+        else
+            if sellThread then
+                task.cancel(sellThread)
+                sellThread = nil
+            end
+            SellStatus:SetContent("OFF\nSold: " .. soldCount)
+        end
+    end
+})
+
+local QuickSection = SellTab:AddSection("QUICK ACTIONS", true)
+QuickSection:AddButton({
+    Title = "SELL ALL EXCEPT VOID",
+    Callback = function()
+        selectedMutations = {NORMAL=true, CANDY=true, GOLD=true, DIAMOND=true, VOID=false}
+        Library:Notification({Title = "Updated", Content = "Selling all except VOID", Duration = 2})
+    end
+})
+
+QuickSection:AddButton({
+    Title = "SELL ALL (INCLUDING VOID)",
+    Callback = function()
+        selectedMutations = {NORMAL=true, CANDY=true, GOLD=true, DIAMOND=true, VOID=true}
+        Library:Notification({Title = "Updated", Content = "Selling ALL mutations", Duration = 2})
+    end
+})
+
+QuickSection:AddButton({
+    Title = "SELL NOW (MANUAL)",
+    Callback = function()
+        local sold = 0
+        local function sellTools()
+            for _, tool in ipairs(Player.Backpack:GetChildren()) do
+                if tool:IsA("Tool") then
+                    local entityId = tool:GetAttribute("EntityId")
+                    if entityId and sellHeld then
+                        pcall(function() sellHeld:InvokeServer(entityId) end)
+                        sold = sold + 1
+                        task.wait(0.1)
+                    end
+                end
+            end
+            if Player.Character then
+                for _, tool in ipairs(Player.Character:GetChildren()) do
+                    if tool:IsA("Tool") then
+                        local entityId = tool:GetAttribute("EntityId")
+                        if entityId and sellHeld then
+                            pcall(function() sellHeld:InvokeServer(entityId) end)
+                            sold = sold + 1
+                            task.wait(0.1)
+                        end
+                    end
+                end
+            end
+        end
+        sellTools()
+        Library:Notification({Title = "Sold", Content = sold .. " brainrots sold", Duration = 3})
+    end
+})
+
+QuickSection:AddButton({
+    Title = "PICKUP ALL BRAINROTS",
+    Callback = function()
+        local plotsFolder = workspace:FindFirstChild("Plots")
+        if plotsFolder and pickupBrainrot then
+            for i = 1, 30 do
+                pcall(function() pickupBrainrot:InvokeServer(tostring(i)) end)
+                task.wait(0.1)
+            end
+            Library:Notification({Title = "Done", Content = "Picked up all brainrots", Duration = 3})
+        end
+    end
+})
+
+local UpgradeSection = UpgradeTab:AddSection("SPEED UPGRADE", true)
+
+local SpeedUpgradeStatus = UpgradeSection:AddParagraph({
+    Title = "SPEED UPGRADE STATUS",
+    Content = "OFF"
+})
+
+local autoUpgradeSpeedRunning = false
+local upgradeAmount = 1
+local upgradeDelay = 0.5
+local speedUpgradeThread
+
+UpgradeSection:AddDivider()
+
+UpgradeSection:AddSlider({
+    Title = "UPGRADE AMOUNT",
+    Default = 1,
+    Min = 1,
+    Max = 100,
+    Callback = function(value) upgradeAmount = value end
+})
+
+UpgradeSection:AddSlider({
+    Title = "UPGRADE DELAY (seconds)",
+    Default = 0.5,
+    Min = 0,
+    Max = 5,
+    Callback = function(value) upgradeDelay = value end
+})
+
+UpgradeSection:AddDivider()
+
+UpgradeSection:AddToggle({
+    Title = "AUTO UPGRADE SPEED",
+    Default = false,
+    Callback = function(state)
+        autoUpgradeSpeedRunning = state
+        
+        if state then
+            SpeedUpgradeStatus:SetContent("ON")
+            speedUpgradeThread = task.spawn(function()
+                while autoUpgradeSpeedRunning do
+                    pcall(function() if upgradeSpeed then upgradeSpeed:InvokeServer("MovementSpeed", upgradeAmount) end end)
+                    task.wait(upgradeDelay)
+                end
+            end)
+        else
+            if speedUpgradeThread then
+                task.cancel(speedUpgradeThread)
+                speedUpgradeThread = nil
+            end
+            SpeedUpgradeStatus:SetContent("OFF")
+        end
+    end
+})
+
+local BrainrotUpgradeSection = UpgradeTab:AddSection("BRAINROT UPGRADE", true)
+
+local BrainrotUpgradeStatus = BrainrotUpgradeSection:AddParagraph({
+    Title = "BRAINROT UPGRADE STATUS",
+    Content = "OFF"
+})
+
+local autoUpgradeBrainrotRunning = false
+local maxUpgradeLevel = 25
+local brainrotUpgradeThread
+
+BrainrotUpgradeSection:AddDivider()
+
+BrainrotUpgradeSection:AddSlider({
+    Title = "MAX UPGRADE LEVEL",
+    Default = 25,
+    Min = 1,
+    Max = 50,
+    Callback = function(value) maxUpgradeLevel = value end
+})
+
+local function runBrainrotUpgrades()
+    while autoUpgradeBrainrotRunning do
+        for i = 1, maxUpgradeLevel do
+            if not autoUpgradeBrainrotRunning then return end
+            if upgradeBrainrot then
+                pcall(function() upgradeBrainrot:InvokeServer(tostring(i)) end)
+            end
+            task.wait(0.3)
+        end
+        task.wait(1)
+    end
+end
+
+BrainrotUpgradeSection:AddToggle({
+    Title = "AUTO UPGRADE BRAINROTS",
+    Default = false,
+    Callback = function(state)
+        autoUpgradeBrainrotRunning = state
+        
+        if state then
+            BrainrotUpgradeStatus:SetContent("ON")
+            brainrotUpgradeThread = task.spawn(runBrainrotUpgrades)
+        else
+            if brainrotUpgradeThread then
+                task.cancel(brainrotUpgradeThread)
+                brainrotUpgradeThread = nil
+            end
+            BrainrotUpgradeStatus:SetContent("OFF")
+        end
+    end
+})
+
+local SpeedControlSection = SpeedTab:AddSection("CUSTOM SPEED", true)
+
+local SpeedStatus = SpeedControlSection:AddParagraph({
+    Title = "SPEED STATUS",
+    Content = "OFF"
+})
+
+local speedEnabled = false
+local luckyBlockSpeed = 1000
+local playerSpeed = 23
+local brainrotSpeed = 1000
+local originalSpeed = nil
+local currentModel = nil
+
+local MethodSection = SpeedTab:AddSection("SPEED METHOD", true)
+local speedMethod = {Luckyblock=true, Brainrot=true, Player=true}
+
+MethodSection:AddToggle({
+    Title = "APPLY TO LUCKYBLOCK",
+    Default = true,
+    Callback = function(state) speedMethod.Luckyblock = state end
+})
+
+MethodSection:AddToggle({
+    Title = "APPLY TO BRAINROT",
+    Default = true,
+    Callback = function(state) speedMethod.Brainrot = state end
+})
+
+MethodSection:AddToggle({
+    Title = "APPLY TO PLAYER",
+    Default = true,
+    Callback = function(state) speedMethod.Player = state end
+})
+
+local function getMyModel()
+    local folder = workspace:FindFirstChild("RunningModels")
+    if not folder then return nil end
+    for _, model in ipairs(folder:GetChildren()) do
+        if model:GetAttribute("OwnerId") == Player.UserId then
+            return model
+        end
+    end
+    return nil
+end
+
+local function applySpeed()
+    local character = workspace:FindFirstChild(Player.Name)
+    local humanoid = character and character:FindFirstChild("Humanoid")
+    
+    if speedMethod.Luckyblock then
+        local model = getMyModel()
+        if model then
+            if model ~= currentModel then
+                currentModel = model
+                originalSpeed = model:GetAttribute("MovementSpeed")
+            end
+            if originalSpeed == nil then
+                originalSpeed = model:GetAttribute("MovementSpeed")
+            end
+            model:SetAttribute("MovementSpeed", luckyBlockSpeed)
+        end
+    end
+    
+    if humanoid then
+        local hasBrainrot = character:GetAttribute("BrainrotType") ~= nil
+        if hasBrainrot and speedMethod.Brainrot then
+            humanoid.WalkSpeed = brainrotSpeed
+        elseif not hasBrainrot and speedMethod.Player then
+            humanoid.WalkSpeed = playerSpeed
+        end
+    end
+end
+
+task.spawn(function()
+    while true do
+        if speedEnabled then pcall(applySpeed) end
+        task.wait(0.2)
+    end
+end)
+
+SpeedControlSection:AddDivider()
+
+SpeedControlSection:AddSlider({
+    Title = "LUCKY BLOCK SPEED",
+    Default = 1000,
+    Min = 50,
+    Max = 3000,
+    Callback = function(value) luckyBlockSpeed = value end
+})
+
+SpeedControlSection:AddSlider({
+    Title = "BRAINROT SPEED",
+    Default = 1000,
+    Min = 50,
+    Max = 3000,
+    Callback = function(value) brainrotSpeed = value end
+})
+
+SpeedControlSection:AddSlider({
+    Title = "PLAYER SPEED",
+    Default = 23,
+    Min = 16,
+    Max = 500,
+    Callback = function(value) playerSpeed = value end
+})
+
+SpeedControlSection:AddDivider()
+
+SpeedControlSection:AddToggle({
+    Title = "ENABLE CUSTOM SPEED",
+    Default = false,
+    Callback = function(state)
+        speedEnabled = state
+        
+        if state then
+            SpeedStatus:SetContent("ON")
+        else
+            local model = getMyModel()
+            if model and originalSpeed ~= nil then
+                model:SetAttribute("MovementSpeed", originalSpeed)
+            end
+            originalSpeed = nil
+            currentModel = nil
+            local character = workspace:FindFirstChild(Player.Name)
+            if character and character:FindFirstChild("Humanoid") then
+                character.Humanoid.WalkSpeed = 23
+            end
+            SpeedStatus:SetContent("OFF")
+        end
+    end
+})
+
+local ClaimSection = MiscTab:AddSection("PLAYTIME REWARDS", true)
+
+local PlaytimeStatus = ClaimSection:AddParagraph({
+    Title = "PLAYTIME STATUS",
+    Content = "OFF"
+})
+
+local autoClaimRunning = false
+local claimThread
+
+ClaimSection:AddDivider()
+
+ClaimSection:AddToggle({
+    Title = "AUTO CLAIM PLAYTIME REWARDS",
+    Default = false,
+    Callback = function(state)
+        autoClaimRunning = state
+        
+        if state then
+            PlaytimeStatus:SetContent("ON")
+            claimThread = task.spawn(function()
+                while autoClaimRunning do
+                    for reward = 1, 12 do
+                        if not autoClaimRunning then break end
+                        pcall(function() if claimGift then claimGift:InvokeServer(reward) end end)
+                        task.wait(0.25)
+                    end
+                    task.wait(1)
+                end
+            end)
+        else
+            if claimThread then
+                task.cancel(claimThread)
+                claimThread = nil
+            end
+            PlaytimeStatus:SetContent("OFF")
+        end
+    end
+})
+
+local EventSection = MiscTab:AddSection("EVENT PASS", true)
+
+local EventStatus = EventSection:AddParagraph({
+    Title = "EVENT PASS STATUS",
+    Content = "OFF"
+})
+
+local autoEventRunning = false
+local eventThread
+
+EventSection:AddDivider()
+
+EventSection:AddToggle({
+    Title = "AUTO CLAIM EVENT PASS REWARDS",
+    Default = false,
+    Callback = function(state)
+        autoEventRunning = state
+        
+        if state then
+            EventStatus:SetContent("ON")
+            eventThread = task.spawn(function()
+                while autoEventRunning do
+                    local success, gui = pcall(function()
+                        return Player.PlayerGui:WaitForChild("Windows"):WaitForChild("Event"):WaitForChild("Frame"):WaitForChild("Windows"):WaitForChild("Pass"):WaitForChild("Main"):WaitForChild("ScrollingFrame")
+                    end)
+                    if success and gui then
+                        for i = 1, 10 do
+                            if not autoEventRunning then break end
+                            local item = gui:FindFirstChild(tostring(i))
+                            if item and item:FindFirstChild("Frame") and item.Frame:FindFirstChild("Free") then
+                                local free = item.Frame.Free
+                                local locked = free:FindFirstChild("Locked")
+                                if locked and not locked.Visible and claimPass then
+                                    pcall(function() claimPass:InvokeServer("Free", i) end)
+                                end
+                            end
+                        end
+                    end
+                    task.wait(0.5)
+                end
+            end)
+        else
+            if eventThread then
+                task.cancel(eventThread)
+                eventThread = nil
+            end
+            EventStatus:SetContent("OFF")
+        end
+    end
+})
+
+local CodeSection = MiscTab:AddSection("REDEEM CODES", true)
+
+local codes = {"release", "DEVIL", "ZEUS", "UPDATE", "LUCKY", "BLOCK"}
+
+CodeSection:AddButton({
+    Title = "REDEEM ALL CODES",
+    Callback = function()
+        for _, code in ipairs(codes) do
+            pcall(function() if redeemCode then redeemCode:InvokeServer(code) end end)
+            task.wait(1)
+        end
+        Library:Notification({Title = "Done", Content = "All codes redeemed", Duration = 3})
+    end
+})
+
+local BuySection = MiscTab:AddSection("AUTO BUY LUCKYBLOCK", true)
+
+local BuyStatus = BuySection:AddParagraph({
+    Title = "BUY STATUS",
+    Content = "OFF"
+})
+
+local autoBuyRunning = false
+local buyThread
+
+BuySection:AddDivider()
+
+BuySection:AddToggle({
+    Title = "AUTO BUY BEST LUCKYBLOCK",
+    Default = false,
+    Callback = function(state)
+        autoBuyRunning = state
+        
+        if state then
+            BuyStatus:SetContent("ON")
+            buyThread = task.spawn(function()
+                while autoBuyRunning do
+                    if buySkin then
+                        pcall(function() buySkin:InvokeServer("prestige_mogging_luckyblock") end)
+                    end
+                    task.wait(2)
+                end
+            end)
+        else
+            if buyThread then
+                task.cancel(buyThread)
+                buyThread = nil
+            end
+            BuyStatus:SetContent("OFF")
+        end
+    end
+})
+
+local SellHeldSection = MiscTab:AddSection("QUICK SELL", true)
+
+SellHeldSection:AddButton({
+    Title = "SELL HELD BRAINROT",
+    Callback = function()
+        local tool = Player.Character and Player.Character:FindFirstChildOfClass("Tool")
+        if not tool then
+            Library:Notification({Title = "Error", Content = "Equip a brainrot first", Duration = 3})
+            return
+        end
+        local entityId = tool:GetAttribute("EntityId")
+        if entityId and sellHeld then
+            pcall(function() sellHeld:InvokeServer(entityId) end)
+            Library:Notification({Title = "Sold", Content = tool.Name, Duration = 3})
+        end
+    end
+})
+
+Library:Notification({
+    Title = "Be a Lucky Block",
+    Content = "OG-HUB Edition Loaded - Auto Farm base15",
+    Duration = 5
+})
