@@ -88,7 +88,7 @@ end
 
 local DEFAULT_CONFIG = {
 	AutoPlant = true,
-	PlantSeed = "Mega", -- "Carrot" / "Mega"
+	PlantSeed = "Carrot", -- "Mega" / "Carrot"
 	AutoHarvest = true,
 	HarvestBelowKg = 50,
 	AutoSell = true,
